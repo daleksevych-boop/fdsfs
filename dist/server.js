@@ -268,6 +268,9 @@ app.get('/health', (req, res) => {
     res.json({ status: '✅ Ready' });
 });
 app.get('/api/cities', async (req, res) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     try {
         const allData = await getGoogleSheetsData();
         const citiesSet = new Set();
@@ -339,4 +342,4 @@ server.listen(PORT, () => {
     console.log(`\n🚀 http://localhost:${PORT}`);
     console.log(`📊 Smart Revenue Calculator with Local Holidays\n`);
 });
-``;
+//# sourceMappingURL=server.js.map
