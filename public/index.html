@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Business Consultant - Revenue Calculator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #D4A574 0%, #8B6F47 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 32px; margin-bottom: 5px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: #f5f5f5;
+            padding: 0;
+            border-bottom: 2px solid #D4A574;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 4px solid transparent;
+        }
+        
+        .tab-button.active {
+            background: white;
+            color: #D4A574;
+            border-bottom-color: #D4A574;
+        }
+        
+        .tab-button:hover {
+            background: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .target-form {
+            background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #D4A574;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #8B6F47;
+            box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #D4A574 0%, #8B6F47 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #00c853 0%, #1de9b6 100%);
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        .result-box.passed {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .result-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .result-details {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 15px;
+        }
+
+        .analytics-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            border-left: 4px solid #D4A574;
+        }
+
+        .analytics-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .analytics-item:last-child {
+            border-bottom: none;
+        }
+
+        .analytics-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .analytics-value {
+            color: #D4A574;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="font-size: 40px; margin-bottom: 10px;">🥐</div>
+            <h1>Revenue Calculator</h1>
+            <p>Реальні дані з Google Sheets</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab(event, 'target')">
+                🎯 Розрахунок
+            </button>
+        </div>
+
+        <div id="target" class="tab-content active">
+            <div class="target-form">
+                <h2 style="margin-bottom: 30px; color: #333;">📊 Розрахунок виторгу</h2>
+
+                <div class="form-group">
+                    <label for="dateInput">📅 Дата</label>
+                    <input type="date" id="dateInput" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cityInput">📍 Місто</label>
+                    <select id="cityInput" required>
+                        <option value="">Завантаження міст...</option>
+                    </select>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateTarget()">
+                    🔄 Розрахувати
+                </button>
+
+                <div id="resultBox" class="result-box">
+                    <div class="result-label" id="resultLabel">Цільовий виторг</div>
+                    <div class="result-value" id="resultValue">0€</div>
+                    <div class="result-details" id="resultDetails"></div>
+                </div>
+
+                <div id="analyticsBox" class="analytics-box" style="display: none;">
+                    <h3 style="margin-bottom: 15px; color: #333;">📈 Дані</h3>
+                    <div class="analytics-item">
+                        <span class="analytics-label">Попередній день:</span>
+                        <span class="analytics-value" id="prevRevenue">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(event, tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        window.addEventListener('load', function() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('dateInput').value = `${year}-${month}-${day}`;
+
+            loadCities();
+        });
+
+        async function loadCities() {
+            try {
+                const response = await fetch('/api/cities');
+                const cities = await response.json();
+
+                const select = document.getElementById('cityInput');
+                select.innerHTML = '<option value="">Виберіть місто...</option>';
+
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Помилка завантаження міст:', error);
+            }
+        }
+
+        async function calculateTarget() {
+            const dateInput = document.getElementById('dateInput').value;
+            const city = document.getElementById('cityInput').value;
+
+            if (!dateInput || !city) {
+                alert('Будь ласка, виберіть дату та місто!');
+                return;
+            }
+
+            const date = new Date(dateInput);
+            const formattedDate = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
+
+            try {
+                const response = await fetch('/api/voice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        transcript: `Розрахуй для ${formattedDate} ${city}`,
+                        userId: 'user_' + Date.now(),
+                        location: city,
+                        date: formattedDate
+                    })
+                });
+
+                const data = await response.json();
+
+                const resultBox = document.getElementById('resultBox');
+                const resultValue = document.getElementById('resultValue');
+                const resultLabel = document.getElementById('resultLabel');
+                const resultDetails = document.getElementById('resultDetails');
+                const analyticsBox = document.getElementById('analyticsBox');
+
+                resultValue.textContent = data.response;
+                
+                const dayOfWeekName = ['Неділя', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П\'ятниця', 'Субота'][date.getDay()];
+
+                resultDetails.innerHTML = `<strong>${city}</strong> | ${formattedDate} | ${dayOfWeekName}`;
+
+                // ЯКЩО ДЕНЬ УЖЕ ПРОЙШОВ
+                if (data.analytics.isDayPassed) {
+                    resultLabel.textContent = data.analytics.actualRevenue > 0 ? '✅ РЕАЛЬНИЙ ВИТОРГ' : '⚠️ ДАНІ ВІДСУТНІ';
+                    resultBox.classList.add('passed');
+                } else {
+                    resultLabel.textContent = '🎯 ЦІЛЬОВИЙ ВИТОРГ';
+                    resultBox.classList.remove('passed');
+                }
+
+                // ПОПЕРЕДНІЙ ДЕНЬ
+                document.getElementById('prevRevenue').textContent = data.analytics.previousRevenue + '€';
+
+                resultBox.classList.add('show');
+                analyticsBox.style.display = 'block';
+
+            } catch (error) {
+                alert('❌ Помилка розрахунку');
+                console.error('Помилка:', error);
+            }
+        }
+    </script>
+</body>
+</html>
