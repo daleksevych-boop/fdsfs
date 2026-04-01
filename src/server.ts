@@ -5,6 +5,7 @@ import { Server as SocketServer, Socket } from 'socket.io';
 import http from 'http';
 import path from 'path';
 import axios from 'axios';
+import { analyzeEmail } from './emailAgent';
 
 dotenv.config();
 
@@ -402,6 +403,30 @@ app.get('/api/menu', (req, res) => {
     { name: 'Круасан з шоколадом', price: 35, emoji: '🍫' },
     { name: 'Круасан зі сливками', price: 40, emoji: '🍓' }
   ]);
+});
+
+// ===== EMAIL AGENT =====
+
+app.post('/api/analyze-email', async (req, res) => {
+  try {
+    const { emailText } = req.body;
+
+    if (!emailText || typeof emailText !== 'string' || emailText.trim().length === 0) {
+      res.status(400).json({ error: 'Текст листа обов\'язковий' });
+      return;
+    }
+
+    console.log('📧 Аналіз листа:', emailText.substring(0, 100) + '...');
+
+    const result = await analyzeEmail(emailText.trim());
+
+    console.log('✅ Аналіз завершено:', result.sentiment);
+
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Помилка аналізу листа:', error);
+    res.status(500).json({ error: 'Помилка аналізу листа' });
+  }
 });
 
 io.on('connection', (socket: Socket) => {
