@@ -207,6 +207,170 @@
             color: #D4A574;
             font-weight: bold;
         }
+
+        /* EMAIL AGENT STYLES */
+        .email-agent-form {
+            background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .email-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #D4A574;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .email-textarea:focus {
+            outline: none;
+            border-color: #8B6F47;
+            box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
+        }
+
+        .analysis-result {
+            margin-top: 25px;
+            display: none;
+        }
+
+        .analysis-result.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        .summary-box {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .summary-box h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .sentiment-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .sentiment-positive { background: #4caf50; color: white; }
+        .sentiment-neutral { background: #2196f3; color: white; }
+        .sentiment-negative { background: #f44336; color: white; }
+        .sentiment-urgent { background: #ff9800; color: white; }
+
+        .key-points-box {
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+        }
+
+        .key-points-box h3 {
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .key-point-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .key-point-item:last-child { border-bottom: none; }
+
+        .responses-box {
+            padding: 20px;
+            background: #f0f7ff;
+            border-radius: 12px;
+            border-left: 4px solid #D4A574;
+        }
+
+        .responses-box h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .response-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .response-card:last-child { margin-bottom: 0; }
+
+        .response-label {
+            font-weight: bold;
+            color: #D4A574;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .response-text {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 12px;
+            background: #D4A574;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #8B6F47;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .loading-spinner.show { display: block; }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #D4A574;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -220,6 +384,9 @@
         <div class="tabs">
             <button class="tab-button active" onclick="switchTab(event, 'target')">
                 🎯 Розрахунок
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'emailAgent')">
+                📧 Email Агент
             </button>
         </div>
 
@@ -254,6 +421,48 @@
                     <div class="analytics-item">
                         <span class="analytics-label">Попередній день:</span>
                         <span class="analytics-value" id="prevRevenue">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EMAIL AGENT TAB -->
+        <div id="emailAgent" class="tab-content">
+            <div class="email-agent-form">
+                <h2 style="margin-bottom: 10px; color: #333;">📧 Email Агент</h2>
+                <p style="margin-bottom: 25px; color: #666; font-size: 14px;">
+                    Вставте текст листа — агент проаналізує його, створить звіт та запропонує варіанти відповіді.
+                </p>
+
+                <div class="form-group">
+                    <label for="emailText">✉️ Текст листа</label>
+                    <textarea id="emailText" class="email-textarea" placeholder="Вставте текст електронного листа сюди..."></textarea>
+                </div>
+
+                <button class="calculate-btn" onclick="analyzeEmailAction()">
+                    🤖 Аналізувати лист
+                </button>
+
+                <div id="emailLoading" class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p style="color: #666;">Аналізую лист...</p>
+                </div>
+
+                <div id="analysisResult" class="analysis-result">
+                    <div id="summaryBox" class="summary-box">
+                        <h3>📋 Звіт</h3>
+                        <p id="summaryText"></p>
+                        <span id="sentimentBadge" class="sentiment-badge"></span>
+                    </div>
+
+                    <div id="keyPointsBox" class="key-points-box">
+                        <h3>🔑 Ключові пункти</h3>
+                        <div id="keyPointsList"></div>
+                    </div>
+
+                    <div id="responsesBox" class="responses-box">
+                        <h3>💬 Варіанти відповіді</h3>
+                        <div id="responsesList"></div>
                     </div>
                 </div>
             </div>
@@ -358,6 +567,52 @@
             } catch (error) {
                 alert('❌ Помилка розрахунку');
                 console.error('Помилка:', error);
+            }
+        }
+
+        // ===== EMAIL AGENT =====
+        async function analyzeEmailAction() {
+            const emailText = document.getElementById('emailText').value;
+            if (!emailText.trim()) {
+                alert('Будь ласка, вставте текст листа!');
+                return;
+            }
+
+            const loading = document.getElementById('emailLoading');
+            const result = document.getElementById('analysisResult');
+            loading.classList.add('show');
+            result.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/analyze-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emailText })
+                });
+                const data = await response.json();
+
+                document.getElementById('summaryText').textContent = data.summary;
+
+                const badge = document.getElementById('sentimentBadge');
+                const sentimentMap = { 'позитивний': 'positive', 'нейтральний': 'neutral', 'негативний': 'negative', 'терміновий': 'urgent' };
+                badge.className = 'sentiment-badge sentiment-' + (sentimentMap[data.sentiment] || 'neutral');
+                badge.textContent = data.sentiment.toUpperCase();
+
+                const keyList = document.getElementById('keyPointsList');
+                keyList.innerHTML = (data.keyPoints || []).map(p => '<div class="key-point-item">• ' + p + '</div>').join('');
+
+                const respList = document.getElementById('responsesList');
+                const labels = ['🔷 Формальна', '💛 Дружня', '⚡ Коротка'];
+                respList.innerHTML = (data.suggestedResponses || []).map((r, i) =>
+                    '<div class="response-card"><div class="response-label">' + (labels[i] || 'Варіант') + '</div><div class="response-text">' + r + '</div><button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.querySelector(\'.response-text\').textContent).then(()=>this.textContent=\'✅\')">📋 Копіювати</button></div>'
+                ).join('');
+
+                loading.classList.remove('show');
+                result.classList.add('show');
+            } catch (error) {
+                loading.classList.remove('show');
+                alert('❌ Помилка аналізу листа');
+                console.error(error);
             }
         }
     </script>
